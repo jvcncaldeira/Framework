@@ -1,0 +1,48 @@
+from flask import Flask, request, jsonify
+from models import db, Usuario, Anuncio, Categoria, Pergunta, Resposta, Compra, Favorito
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mydatabase.db'
+db.init_app(app)
+
+@app.route('/usuarios', methods=['POST'])
+def create_usuario():
+    data = request.get_json()
+    usuario = Usuario(nome=data['nome'], email=data['email'], senha=data['senha'], tipo=data['tipo'])
+    db.session.add(usuario)
+    db.session.commit()
+    return jsonify({'message': 'Usuário criado'}), 201
+
+@app.route('/usuarios/<int:id>', methods=['GET'])
+def get_usuario(id):
+    usuario = Usuario.query.get(id)
+    if usuario:
+        return jsonify({'id': usuario.id, 'nome': usuario.nome, 'email': usuario.email, 'tipo': usuario.tipo}), 200
+    return jsonify({'message': 'Usuário não encontrado'}), 404
+
+@app.route('/usuarios/<int:id>', methods=['PUT'])
+def update_usuario(id):
+    data = request.get_json()
+    usuario = Usuario.query.get(id)
+    if usuario:
+        usuario.nome = data['nome']
+        usuario.email = data['email']
+        usuario.senha = data['senha']
+        usuario.tipo = data['tipo']
+        db.session.commit()
+        return jsonify({'message': 'Usuário atualizado'}), 200
+    return jsonify({'message': 'Usuário não encontrado'}), 404
+
+@app.route('/usuarios/<int:id>', methods=['DELETE'])
+def delete_usuario(id):
+    usuario = Usuario.query.get(id)
+    if usuario:
+        db.session.delete(usuario)
+        db.session.commit()
+        return jsonify({'message': 'Usuário excluído'}), 200
+    return jsonify({'message': 'Usuário não encontrado'}), 404
+
+# Adicione rotas semelhantes para Anúncio, Categoria, Pergunta, Resposta, Compra e Favorito
+
+if __name__ == '__main__':
+    app.run(debug=True)
