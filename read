@@ -1,0 +1,4 @@
+@app.route('/anuncios')
+def listar_anuncios():
+    anuncios = Anuncio.query.all()
+    return render_template('anuncios.html', anuncios=anuncios)
