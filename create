@@ -1,0 +1,9 @@
+@app.route('/anuncio/novo', methods=['POST'])
+def novo_anuncio():
+    titulo = request.form['titulo']
+    descricao = request.form['descricao']
+    preco = request.form['preco']
+    anuncio = Anuncio(titulo=titulo, descricao=descricao, preco=preco)
+    db.session.add(anuncio)
+    db.session.commit()
+    return redirect(url_for('listar_anuncios'))
