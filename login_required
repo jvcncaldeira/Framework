@@ -1,1 +1,26 @@
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
+# Configuração do Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return Usuario.query.get(int(user_id))
+
+# Rota protegida
+@app.route('/anuncios', methods=['GET', 'POST'])
+@login_required
+def anuncios():
+    if request.method == 'POST':
+        titulo = request.form['titulo']
+        descricao = request.form['descricao']
+        preco = request.form['preco']
+        categoria_id = request.form['categoria']
+        usuario_id = current_user.id  # Usar ID do usuário logado
+        anuncio = Anuncio(titulo=titulo, descricao=descricao, preco=preco, usuario_id=usuario_id, categoria_id=categoria_id)
+        db.session.add(anuncio)
+        db.session.commit()
+        return redirect(url_for('anuncios'))
+    categorias = Categoria.query.all()
+    return render_template('anuncios.html', categorias=categorias)
